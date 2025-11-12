@@ -1,0 +1,20 @@
+body {
+  background-color: #000; /* fond noir */
+  color: #fff;           /* texte blanc */
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 50px;
+}
+
+#compteur {
+  font-size: 24px;
+  margin-bottom: 30px;
+}
+
+.jour {
+  display: none; /* tous les jours sont cachés au départ */
+  margin: 20px 0;
+  padding: 15px;
+  border: 1px solid #fff;
+  border-radius: 10px;
+}
