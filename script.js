@@ -1,20 +1,18 @@
 // -----------------------
-// Script pour Happy Birthday Emy
-// Minuteur universel + déblocage automatique des 7 jours
+// Compteur synchronisé France
 // -----------------------
 
-// Fonction principale
 async function updateTimer() {
   try {
-    // Récupère l'heure UTC exacte depuis l'API
-    const res = await fetch('https://worldtimeapi.org/api/timezone/Etc/UTC');
+    // Récupère l'heure exacte en France via l'API
+    const res = await fetch('https://worldtimeapi.org/api/timezone/Europe/Paris');
     const data = await res.json();
-    const now = new Date(data.utc_datetime);
+    const now = new Date(data.datetime);
 
-    // Heure de déblocage prochaine journée (minuit UTC)
-    const tomorrow = new Date(now);
-    tomorrow.setUTCHours(24, 0, 0, 0); // minuit
-    const diff = tomorrow - now;
+    // Prochain minuit en France
+    const demain = new Date(now);
+    demain.setHours(24, 0, 0, 0);
+    const diff = demain - now;
 
     // Conversion en heures, minutes, secondes
     let heures = Math.floor(diff / (1000 * 60 * 60));
@@ -24,15 +22,13 @@ async function updateTimer() {
     // Affichage du timer
     const timerElement = document.getElementById('timer');
     if (timerElement) {
-      timerElement.textContent = 
+      timerElement.textContent =
         `${heures.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${secondes.toString().padStart(2,'0')}`;
     }
 
-    // Déblocage des jours selon la date UTC
+    // Déblocage des jours selon l'heure en France
     const jours = document.querySelectorAll('.jour');
-
-    // Définition des jours 1 à 7 par rapport à une date de départ fixe
-    const debutCalendrier = new Date(Date.UTC(2025, 10, 13, 0, 0, 0)); // Exemple : 13 novembre 2025
+    const debutCalendrier = new Date(2025, 10, 13); // 13 novembre 2025
     const diffJours = Math.floor((now - debutCalendrier) / (1000 * 60 * 60 * 24));
 
     jours.forEach((jour, i) => {
@@ -44,7 +40,7 @@ async function updateTimer() {
     });
 
   } catch (err) {
-    console.error('Erreur lors de la récupération de l’heure UTC :', err);
+    console.error('Erreur récupération heure France :', err);
   }
 }
 
