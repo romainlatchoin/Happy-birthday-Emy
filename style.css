@@ -1,63 +1,109 @@
-/* Fonbd nkoir et texte blanc */
-body {
-  background-color: #000;
-  color: #fff;
-  font-family: Arial, sans-serif;
-  text-align: center;
-  padding: 50px;
+/* Fond noir et texte blanc */
+:root{
+  --bg:#000;
+  --card:#111;
+  --text:#fff;
+  --accent:#e1e1e1;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  min-height:100vh;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:40px 16px;
+}
+main{
+  width:100%;
+  max-width:900px;
+  text-align:center;
+}
+
+/* Titre */
+h1{
+  margin:0 0 18px 0;
+  font-size:clamp(20px,4vw,32px);
 }
 
 /* Minuteur */
-#compteur {
-  font-size: 24px;
-  margin-bottom: 30px;
+#compteur{
+  margin-bottom:24px;
+}
+#compteur p{margin:6px 0}
+#timer{
+  display:inline-block;
+  font-size:28px;
+  padding:10px 18px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,0.12);
+  background:#050505;
 }
 
-/* Style des jours */
-.jour {
-  cursor: pointer;
-  margin: 15px auto;
-  padding: 20px;
-  border: 1px solid #fff;
-  border-radius: 10px;
-  max-width: 200px;
+/* Avertissement si API indisponible */
+#warn{
+  color:#ffcc00;
+  margin-top:8px;
+  font-size:13px;
 }
 
-/* Overlay pour le contenu détaillé */
-#overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.95);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+/* Conteneur jours */
+#contenu{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  justify-content:center;
+  margin-top:10px;
 }
 
-#overlay-content {
-  position: relative;
-  background-color: #111;
-  color: #fff;
-  padding: 30px;
-  border-radius: 15px;
-  max-width: 90%;
-  max-height: 90%;
-  overflow-y: auto;
-  text-align: left;
+/* Carte jour */
+.jour{
+  cursor:pointer;
+  flex: 0 1 180px;
+  max-width:220px;
+  min-height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:14px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  transition:transform .15s ease, box-shadow .15s ease;
+  user-select:none;
 }
+.jour:hover{ transform: translateY(-6px); box-shadow: 0 8px 20px rgba(0,0,0,0.6); }
 
-#close-btn {
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  font-size: 30px;
-  cursor: pointer;
+/* Overlay (plein écran) */
+#overlay{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,0.85);
+  z-index:1000;
 }
-
-/* Classe pour cacher l'overlay */
-.hidden {
-  display: none;
+#overlay-content{
+  position:relative;
+  width:min(980px,95%);
+  max-height:90%;
+  overflow:auto;
+  background:var(--card);
+  padding:26px;
+  border-radius:12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+  color:var(--text);
+  text-align:left;
 }
+#overlay-text h2{margin-top:0}
+#close-btn{
+  position:absolute;
+  top:12px;
+  right:12px;
+  width:
