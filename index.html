@@ -1,42 +1,298 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Happy Birthday Emy</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendrier Mystère</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        #timer-screen, #grid-screen, #content-screen {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        #timer-screen.active, #grid-screen.active, #content-screen.active {
+            display: flex;
+        }
+
+        #timer {
+            font-size: 4rem;
+            font-weight: bold;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .box {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            border: 2px solid #444;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .box:not(.locked):hover {
+            transform: scale(1.05);
+            border-color: #fff;
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+
+        .box.locked {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .box-number {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .lock-icon {
+            font-size: 1.5rem;
+            margin-top: 10px;
+        }
+
+        #content-screen {
+            flex-direction: column;
+        }
+
+        .content-display {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .content-display h2 {
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        .content-display p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .content-display img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .content-display video {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .back-button {
+            margin-top: 30px;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: #ddd;
+            transform: scale(1.05);
+        }
+
+        .timer-label {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+    </style>
 </head>
 <body>
-  <main>
-    <h1>Happy Birthday Emy 🎉</h1>
-
-    <!-- Minuteur central -->
-    <div id="compteur">
-      <p>Temps restant avant le prochain jour (heure de France) :</p>
-      <span id="timer">--:--:--</span>
-      <p id="warn" class="hidden"></p>
+    <!-- Écran du minuteur -->
+    <div id="timer-screen" class="active">
+        <div>
+            <div class="timer-label">Temps restant avant le prochain déverrouillage</div>
+            <div id="timer">--:--:--</div>
+        </div>
     </div>
 
-    <!-- Contenu des 7 jours -->
-    <div id="contenu">
-      <div class="jour" id="jour1">Jour 1</div>
-      <div class="jour" id="jour2">Jour 2</div>
-      <div class="jour" id="jour3">Jour 3</div>
-      <div class="jour" id="jour4">Jour 4</div>
-      <div class="jour" id="jour5">Jour 5</div>
-      <div class="jour" id="jour6">Jour 6</div>
-      <div class="jour" id="jour7">Jour 7</div>
+    <!-- Écran de la grille -->
+    <div id="grid-screen">
+        <div class="grid-container" id="grid"></div>
     </div>
 
-    <!-- Overlay pour contenu détaillé -->
-    <div id="overlay" class="hidden" aria-hidden="true">
-      <div id="overlay-content" role="dialog" aria-modal="true">
-        <button id="close-btn" aria-label="Fermer">&times;</button>
-        <div id="overlay-text"></div>
-      </div>
+    <!-- Écran de contenu -->
+    <div id="content-screen">
+        <div class="content-display" id="content"></div>
+        <button class="back-button" onclick="showGrid()">← Retour</button>
     </div>
-  </main>
 
-  <script src="script.js"></script>
+    <script>
+        // Contenu pour chaque jour
+        const contents = {
+            1: {
+                type: 'text',
+                title: 'Jour 1',
+                content: 'Bienvenue dans cette aventure ! Chaque jour révèle une nouvelle surprise...'
+            },
+            2: {
+                type: 'image',
+                title: 'Jour 2',
+                content: 'https://via.placeholder.com/600x400/333/fff?text=Image+Jour+2'
+            },
+            3: {
+                type: 'text',
+                title: 'Jour 3',
+                content: 'Troisième jour, troisième découverte !'
+            },
+            4: {
+                type: 'video',
+                title: 'Jour 4',
+                content: 'https://www.w3schools.com/html/mov_bbb.mp4'
+            },
+            5: {
+                type: 'text',
+                title: 'Jour 5',
+                content: 'Nous sommes à mi-chemin !'
+            },
+            6: {
+                type: 'text',
+                title: 'Jour 6',
+                content: 'Avant-dernier jour...'
+            },
+            7: {
+                type: 'text',
+                title: 'Jour 7',
+                content: 'Félicitations ! Vous avez terminé cette semaine mystère ! 🎉'
+            }
+        };
+
+        // Date de début (à ajuster selon vos besoins)
+        const startDate = new Date('2025-11-13T00:00:00+01:00');
+
+        function getUnlockedDays() {
+            const now = new Date();
+            const diff = now - startDate;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
+            return Math.max(0, Math.min(days, 7));
+        }
+
+        function getTimeUntilNextDay() {
+            const now = new Date();
+            const tomorrow = new Date(now);
+            tomorrow.setHours(24, 0, 0, 0);
+            
+            const diff = tomorrow - now;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function updateTimer() {
+            document.getElementById('timer').textContent = getTimeUntilNextDay();
+        }
+
+        function createGrid() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            const unlockedDays = getUnlockedDays();
+            
+            for (let i = 1; i <= 7; i++) {
+                const box = document.createElement('div');
+                box.className = 'box';
+                
+                if (i > unlockedDays) {
+                    box.classList.add('locked');
+                    box.innerHTML = `
+                        <div class="box-number">${i}</div>
+                        <div class="lock-icon">🔒</div>
+                    `;
+                } else {
+                    box.innerHTML = `<div class="box-number">${i}</div>`;
+                    box.onclick = () => showContent(i);
+                }
+                
+                grid.appendChild(box);
+            }
+        }
+
+        function showContent(day) {
+            const contentData = contents[day];
+            const contentDiv = document.getElementById('content');
+            
+            let html = `<h2>${contentData.title}</h2>`;
+            
+            if (contentData.type === 'text') {
+                html += `<p>${contentData.content}</p>`;
+            } else if (contentData.type === 'image') {
+                html += `<img src="${contentData.content}" alt="${contentData.title}">`;
+            } else if (contentData.type === 'video') {
+                html += `<video controls><source src="${contentData.content}" type="video/mp4"></video>`;
+            }
+            
+            contentDiv.innerHTML = html;
+            
+            document.getElementById('grid-screen').classList.remove('active');
+            document.getElementById('content-screen').classList.add('active');
+        }
+
+        function showGrid() {
+            document.getElementById('content-screen').classList.remove('active');
+            document.getElementById('timer-screen').classList.remove('active');
+            document.getElementById('grid-screen').classList.add('active');
+            createGrid();
+        }
+
+        // Clic sur l'écran du timer pour aller à la grille
+        document.getElementById('timer-screen').addEventListener('click', showGrid);
+
+        // Mise à jour du timer chaque seconde
+        setInterval(updateTimer, 1000);
+        updateTimer();
+        
+        // Vérifier les déverrouillages toutes les minutes
+        setInterval(() => {
+            if (document.getElementById('grid-screen').classList.contains('active')) {
+                createGrid();
+            }
+        }, 60000);
+    </script>
 </body>
 </html>
