@@ -18,7 +18,7 @@
             overflow: hidden;
         }
 
-        #timer-screen, #grid-screen, #content-screen {
+        #timer-screen, #grid-screen, #content-screen, #question-screen {
             display: none;
             justify-content: center;
             align-items: center;
@@ -26,7 +26,7 @@
             padding: 20px;
         }
 
-        #timer-screen.active, #grid-screen.active, #content-screen.active {
+        #timer-screen.active, #grid-screen.active, #content-screen.active, #question-screen.active {
             display: flex;
         }
 
@@ -140,6 +140,100 @@
             margin-bottom: 20px;
             opacity: 0.8;
         }
+
+        .click-hint {
+            font-size: 1.2rem;
+            margin-top: 30px;
+            opacity: 0.6;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 0.2; }
+        }
+
+        .timer-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+
+        .timer-label-small {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+
+        #timer-small {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        #grid-screen {
+            flex-direction: column;
+        }
+
+        .question-container {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .question-container h2 {
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+
+        .question-container p {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        #answer-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            border: 2px solid #444;
+            border-radius: 5px;
+            background: #1a1a1a;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        #answer-input:focus {
+            outline: none;
+            border-color: #fff;
+        }
+
+        .submit-button {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-button:hover {
+            background: #ddd;
+            transform: scale(1.05);
+        }
+
+        #error-message {
+            margin-top: 20px;
+            color: #ff6b6b;
+            font-size: 1rem;
+            min-height: 20px;
+        }
     </style>
 </head>
 <body>
@@ -148,11 +242,27 @@
         <div>
             <div class="timer-label">Temps restant avant le prochain déverrouillage</div>
             <div id="timer">--:--:--</div>
+            <div class="click-hint">Cliquez pour voir les jours</div>
+        </div>
+    </div>
+
+    <!-- Écran de la question -->
+    <div id="question-screen">
+        <div class="question-container">
+            <h2 id="question-title">Question du jour</h2>
+            <p id="question-text"></p>
+            <input type="text" id="answer-input" placeholder="Votre réponse...">
+            <button class="submit-button" onclick="checkAnswer()">Valider</button>
+            <div id="error-message"></div>
         </div>
     </div>
 
     <!-- Écran de la grille -->
     <div id="grid-screen">
+        <div class="timer-header">
+            <div class="timer-label-small">Prochain déverrouillage dans :</div>
+            <div id="timer-small">--:--:--</div>
+        </div>
         <div class="grid-container" id="grid"></div>
     </div>
 
@@ -163,12 +273,44 @@
     </div>
 
     <script>
+        // Questions quotidiennes (une par jour)
+        const dailyQuestions = {
+            1: {
+                question: "Quelle est la capitale de la France ?",
+                answer: "paris"
+            },
+            2: {
+                question: "Combien font 5 + 7 ?",
+                answer: "12"
+            },
+            3: {
+                question: "Quelle couleur obtient-on en mélangeant bleu et jaune ?",
+                answer: "vert"
+            },
+            4: {
+                question: "Quel est le plus grand océan du monde ?",
+                answer: "pacifique"
+            },
+            5: {
+                question: "Combien y a-t-il de jours dans une semaine ?",
+                answer: "7"
+            },
+            6: {
+                question: "Quelle planète est la plus proche du Soleil ?",
+                answer: "mercure"
+            },
+            7: {
+                question: "Quel animal dit 'miaou' ?",
+                answer: "chat"
+            }
+        };
+
         // Contenu pour chaque jour
         const contents = {
             1: {
                 type: 'text',
                 title: 'Jour 1',
-                content: 'Bienvenue dans cette aventure ! Chaque jour révèle une nouvelle surprise...'
+                content: 'https://kahoot.it/challenge/07381720?challenge-id=aad2ff3e-615d-4fc7-bccf-7c8ad6a0deee_1763056751971'
             },
             2: {
                 type: 'image',
@@ -205,6 +347,16 @@
         // Date de début (à ajuster selon vos besoins)
         const startDate = new Date('2025-11-13T00:00:00+01:00');
 
+        // Stocker les réponses validées
+        let answeredDays = {};
+
+        function getTodayDay() {
+            const now = new Date();
+            const diff = now - startDate;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
+            return Math.max(1, Math.min(days, 7));
+        }
+
         function getUnlockedDays() {
             const now = new Date();
             const diff = now - startDate;
@@ -226,7 +378,9 @@
         }
 
         function updateTimer() {
-            document.getElementById('timer').textContent = getTimeUntilNextDay();
+            const timeString = getTimeUntilNextDay();
+            document.getElementById('timer').textContent = timeString;
+            document.getElementById('timer-small').textContent = timeString;
         }
 
         function createGrid() {
@@ -273,6 +427,38 @@
             document.getElementById('content-screen').classList.add('active');
         }
 
+        function showQuestion() {
+            const today = getTodayDay();
+            const todayQuestion = dailyQuestions[today];
+            
+            if (!todayQuestion) {
+                showGrid();
+                return;
+            }
+            
+            document.getElementById('question-title').textContent = `Question du jour ${today}`;
+            document.getElementById('question-text').textContent = todayQuestion.question;
+            document.getElementById('answer-input').value = '';
+            document.getElementById('error-message').textContent = '';
+            
+            document.getElementById('timer-screen').classList.remove('active');
+            document.getElementById('question-screen').classList.add('active');
+        }
+
+        function checkAnswer() {
+            const today = getTodayDay();
+            const userAnswer = document.getElementById('answer-input').value.trim().toLowerCase();
+            const correctAnswer = dailyQuestions[today].answer.toLowerCase();
+            
+            if (userAnswer === correctAnswer) {
+                answeredDays[today] = true;
+                document.getElementById('question-screen').classList.remove('active');
+                showGrid();
+            } else {
+                document.getElementById('error-message').textContent = 'Réponse incorrecte, réessayez !';
+            }
+        }
+
         function showGrid() {
             document.getElementById('content-screen').classList.remove('active');
             document.getElementById('timer-screen').classList.remove('active');
@@ -280,8 +466,22 @@
             createGrid();
         }
 
-        // Clic sur l'écran du timer pour aller à la grille
-        document.getElementById('timer-screen').addEventListener('click', showGrid);
+        // Clic sur l'écran du timer pour aller à la question
+        document.getElementById('timer-screen').addEventListener('click', () => {
+            const today = getTodayDay();
+            if (!answeredDays[today]) {
+                showQuestion();
+            } else {
+                showGrid();
+            }
+        });
+
+        // Permettre de valider avec la touche Entrée
+        document.getElementById('answer-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
 
         // Mise à jour du timer chaque seconde
         setInterval(updateTimer, 1000);
