@@ -1,37 +1,41 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Happy Birthday Emy</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Happy Birthday Emy 🎉</h1>
+  <main>
+    <h1>Happy Birthday Emy 🎉</h1>
 
-  <!-- Minuteur central -->
-  <div id="compteur">
-    <p>Temps restant pour le prochain jour :</p>
-    <span id="timer">00:00:00</span>
-  </div>
-
-  <!-- Contenu jdes 7 jours -->
-  <div id="contenu">
-    <div class="jour" id="jour1">Jour 1</div>
-    <div class="jour" id="jour2">Jour 2</div>
-    <div class="jour" id="jour3">Jour 3</div>
-    <div class="jour" id="jour4">Jour 4</div>
-    <div class="jour" id="jour5">Jour 5</div>
-    <div class="jour" id="jour6">Jour 6</div>
-    <div class="jour" id="jour7">Jour 7</div>
-  </div>
-
-  <!-- Overlay pour contenu détaillé -->
-  <div id="overlay" class="hidden">
-    <div id="overlay-content">
-      <span id="close-btn">&times;</span>
-      <div id="overlay-text"></div>
+    <!-- Minuteur central -->
+    <div id="compteur">
+      <p>Temps restant avant le prochain jour (heure de France) :</p>
+      <span id="timer">--:--:--</span>
+      <p id="warn" class="hidden"></p>
     </div>
-  </div>
+
+    <!-- Contenu des 7 jours -->
+    <div id="contenu">
+      <div class="jour" id="jour1">Jour 1</div>
+      <div class="jour" id="jour2">Jour 2</div>
+      <div class="jour" id="jour3">Jour 3</div>
+      <div class="jour" id="jour4">Jour 4</div>
+      <div class="jour" id="jour5">Jour 5</div>
+      <div class="jour" id="jour6">Jour 6</div>
+      <div class="jour" id="jour7">Jour 7</div>
+    </div>
+
+    <!-- Overlay pour contenu détaillé -->
+    <div id="overlay" class="hidden" aria-hidden="true">
+      <div id="overlay-content" role="dialog" aria-modal="true">
+        <button id="close-btn" aria-label="Fermer">&times;</button>
+        <div id="overlay-text"></div>
+      </div>
+    </div>
+  </main>
 
   <script src="script.js"></script>
 </body>
