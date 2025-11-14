@@ -357,10 +357,13 @@
                 linkText: 'Découvrez la vidéo du jour'
             },
             7: {
-                type: 'text',
+                type: 'redirect',      // nouveau type
                 title: 'Jour 7',
-                content: 'Félicitations ! Vous avez terminé cette semaine mystère ! 🎉'
+                url: 'special'  // chemin relatif vers ta page
             }
+
+            
+
         };
 
         // Date de début (à ajuster selon vos besoins)
@@ -441,6 +444,8 @@
                 html += `<img src="${contentData.content}" alt="${contentData.title}">`;
             } else if (contentData.type === 'video') {
                 html += `<video controls><source src="${contentData.content}" type="video/mp4"></video>`;
+            }else if (contentData.type === 'redirect') {
+                window.location.href = contentData.url;  // redirection vers la page du jour 7
             } else if (contentData.type === 'link') {
                 html += `<a href="${contentData.content}" target="_blank" class="content-link">${contentData.linkText || 'Cliquez ici'}</a>`;
             }
