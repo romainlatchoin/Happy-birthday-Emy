@@ -1,4 +1,5 @@
-import * as THREE from "https://cdn.skypack.dev/three@0.133.1/build/three.module";
+import * as THREE from "https://cdn.skypack.dev/three@0.133.1";
+
 
 const canvasEl = document.querySelector("#canvas");
 const cleanBtn = document.querySelector(".clean-btn");
