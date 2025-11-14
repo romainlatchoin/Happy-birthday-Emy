@@ -118,6 +118,34 @@
             margin: 20px 0;
         }
 
+        .scrollable-text {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .scrollable-text::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .scrollable-text::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+        }
+
+        .scrollable-text::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 5px;
+        }
+
+        .scrollable-text::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
         .content-link {
             display: inline-block;
             padding: 20px 40px;
@@ -133,6 +161,25 @@
         .content-link:hover {
             transform: scale(1.05);
             box-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .redirect-button {
+            display: inline-block;
+            padding: 20px 40px;
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            border-radius: 10px;
+            margin: 30px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .redirect-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(245, 87, 108, 0.5);
         }
 
         .back-button {
@@ -357,13 +404,23 @@
                 linkText: 'Découvrez la vidéo du jour'
             },
             7: {
-                type: 'redirect',      // nouveau type
+                type: 'scroll-redirect',
                 title: 'Jour 7',
-                url: 'sampleFolder/index.html'  // chemin relatif vers ta page
+                content: `
+                    <p>Félicitations ! Vous êtes arrivé au jour 7...</p>
+                    <p>Cette aventure touche à sa fin, mais une nouvelle commence !</p>
+                    <p>Vous avez parcouru un long chemin, jour après jour, dévoilant chaque mystère.</p>
+                    <p>Chaque étape vous a rapproché de ce moment final.</p>
+                    <p>Maintenant, il est temps de découvrir ce qui vous attend.</p>
+                    <p>Le voyage ne s'arrête pas ici, il ne fait que commencer.</p>
+                    <p>Êtes-vous prêt à franchir la dernière porte ?</p>
+                    <p>Tout ce que vous avez vécu jusqu'ici n'était qu'une préparation.</p>
+                    <p>La vraie aventure vous attend de l'autre côté.</p>
+                    <p>Faites défiler jusqu'au bout pour continuer...</p>
+                `,
+                url: 'sampleFolder/index.html',
+                buttonText: 'Découvrir la suite →'
             }
-
-            
-
         };
 
         // Date de début (à ajuster selon vos besoins)
@@ -435,7 +492,6 @@
         function showContent(day) {
             const contentData = contents[day];
             const contentDiv = document.getElementById('content');
-            
             let html = `<h2>${contentData.title}</h2>`;
             
             if (contentData.type === 'text') {
@@ -444,10 +500,11 @@
                 html += `<img src="${contentData.content}" alt="${contentData.title}">`;
             } else if (contentData.type === 'video') {
                 html += `<video controls><source src="${contentData.content}" type="video/mp4"></video>`;
-            }else if (contentData.type === 'redirect') {
-                window.location.href = contentData.url;  // redirection vers la page du jour 7
             } else if (contentData.type === 'link') {
                 html += `<a href="${contentData.content}" target="_blank" class="content-link">${contentData.linkText || 'Cliquez ici'}</a>`;
+            } else if (contentData.type === 'scroll-redirect') {
+                html += `<div class="scrollable-text">${contentData.content}</div>`;
+                html += `<a href="${contentData.url}" class="redirect-button">${contentData.buttonText || 'Continuer'}</a>`;
             }
             
             contentDiv.innerHTML = html;
